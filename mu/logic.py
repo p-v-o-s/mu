@@ -119,7 +119,7 @@ def get_settings_path():
         settings_dir = os.path.join(DATA_DIR, settings_filename)
         if not os.path.exists(settings_dir):
             try:
-                with open(settings_dir, 'w') as f:
+                with open(settings_dir, 'w', encoding='utf-8') as f:
                     logger.debug('Creating settings file: {}'.format(
                                  settings_dir))
                     json.dump({}, f)
@@ -137,7 +137,7 @@ def get_workspace_dir():
     """
     settings_path = get_settings_path()
     try:
-        with open(settings_path) as f:
+        with open(settings_path, encoding='utf-8') as f:
             try:
                 # Load up the JSON
                 sets = json.load(f)
@@ -192,7 +192,8 @@ def check_pycodestyle(code):
     # the code.
     code_fd, code_filename = tempfile.mkstemp()
     os.close(code_fd)
-    with open_atomic(code_filename, 'w', newline='') as code_file:
+    with open_atomic(code_filename, 'w', newline='', encoding='utf-8') \
+            as code_file:
         code_file.write(code)
     # Configure which PEP8 rules to ignore.
     style = StyleGuide(parse_argv=False, config_file=False)
@@ -339,7 +340,7 @@ class Editor:
         run.
         """
         settings_path = get_settings_path()
-        with open(settings_path) as f:
+        with open(settings_path, encoding='utf-8') as f:
             try:
                 old_session = json.load(f)
             except ValueError:
@@ -353,7 +354,7 @@ class Editor:
                 if 'paths' in old_session:
                     for path in old_session['paths']:
                         try:
-                            with open(path) as f:
+                            with open(path, encoding='utf-8') as f:
                                 text = f.read()
                         except FileNotFoundError:
                             pass
@@ -567,14 +568,14 @@ class Editor:
             if path.endswith('.py'):
                 # Open the file, read the textual content and set the name as
                 # the path to the file.
-                with open(path, newline='') as f:
+                with open(path, newline='', encoding='utf-8') as f:
                     text = f.read()
                 name = path
             else:
                 # Open the hex, extract the Python script therein and set the
                 # name to None, thus forcing the user to work out what to name
                 # the recovered script.
-                with open(path, newline='') as f:
+                with open(path, newline='', encoding='utf-8') as f:
                     text = uflash.extract_script(f.read())
                 name = None
         except FileNotFoundError:
@@ -599,7 +600,7 @@ class Editor:
             if not os.path.basename(tab.path).endswith('.py'):
                 # No extension given, default to .py
                 tab.path += '.py'
-            with open_atomic(tab.path, 'w', newline='') as f:
+            with open_atomic(tab.path, 'w', newline='', encoding='utf-8') as f:
                 logger.info('Saving script to: {}'.format(tab.path))
                 logger.debug(tab.text())
                 f.write(tab.text())
@@ -672,7 +673,7 @@ class Editor:
         }
         logger.debug(session)
         settings_path = get_settings_path()
-        with open(settings_path, 'w') as out:
+        with open(settings_path, 'w', encoding='utf-8') as out:
             logger.debug('Saving session to: {}'.format(settings_path))
             json.dump(session, out, indent=2)
         sys.exit(0)

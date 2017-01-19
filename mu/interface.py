@@ -233,7 +233,7 @@ class EditorPane(QsciScintilla):
         font = Font().load()
         self.setFont(font)
         # Generic editor settings
-        self.setUtf8(True)
+        self.setUtf8(False)
         self.setAutoIndent(True)
         self.setIndentationsUseTabs(False)
         self.setIndentationWidth(4)
