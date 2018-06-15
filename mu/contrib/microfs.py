@@ -41,13 +41,22 @@ For example, 'ufs ls' will list the files on a connected BBC micro:bit.
 """
 
 
-def find_microbit():
+def find_microbit(ids = None):
     """
     Finds the port to which the device is connected.
     """
+    if ids is None:
+        ids = (0x0D28, 0x0204) #default to microbit
+    vid = "{0:0{1}X}".format(ids[0],4)
+    pid = "{0:0{1}X}".format(ids[1],4)
+    addr_text = "VID:PID={}:{}".format(vid,pid)
+    print(addr_text)
     ports = list_serial_ports()
     for port in ports:
-        if "VID:PID=0D28:0204" in port[2].upper():
+        desc = port[2].upper().split()
+        print(desc)
+        if addr_text in desc:
+            print("MATCH!")
             return port[0]
     return None
 
@@ -56,17 +65,19 @@ def raw_on(serial):
     """
     Puts the device into raw mode.
     """
+    print("microfs.raw_on")
+    # Flush input (without relying on serial.flushInput())
+    n = serial.inWaiting()
+    while n > 0:
+        data = serial.read(n)
+        print(data)
+        n = serial.inWaiting()
     # Send CTRL-B to end raw mode if required.
     serial.write(b'\x02')
     # Send CTRL-C three times between pauses to break out of loop.
     for i in range(3):
         serial.write(b'\r\x03')
         time.sleep(0.01)
-    # Flush input (without relying on serial.flushInput())
-    n = serial.inWaiting()
-    while n > 0:
-        serial.read(n)
-        n = serial.inWaiting()
     # Go into raw mode with CTRL-A.
     serial.write(b'\r\x01')
     # Flush
@@ -80,6 +91,7 @@ def raw_on(serial):
     if not data.endswith(b'soft reboot\r\n'):
         print(data)
         raise IOError('Could not enter raw REPL.')
+    serial.write(b'\r\n')#send return to enter RAW REPL CWV
     data = serial.read_until(b'raw REPL; CTRL-B to exit\r\n>')
     if not data.endswith(b'raw REPL; CTRL-B to exit\r\n>'):
         print(data)
@@ -93,12 +105,12 @@ def raw_off(serial):
     serial.write(b'\x02')  # Send CTRL-B to get out of raw mode.
 
 
-def get_serial():
+def get_serial(ids = None):
     """
     Detect if a micro:bit is connected and return a serial object to talk to
     it.
     """
-    port = find_microbit()
+    port = find_microbit(ids)
     if port is None:
         raise IOError('Could not find micro:bit.')
     return Serial(port, 115200, timeout=1, parity='N')
