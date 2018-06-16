@@ -17,8 +17,10 @@ class SerialuPythonDevice:
     def __init__(self, port, baudrate=115200):
         print(port)
         self.serial = Serial(port,baudrate=baudrate)
+        time.sleep(0.1)
         self.serial.write(b'\x02')  # Send Ctrl-B to ensure not raw mode
         self.serial.write(b'\x03')  # Send a Control-C
+        self.serial.write(b'\r\n')  # Send a Control-C
         
     def list_files(self):
         """
@@ -200,6 +202,12 @@ class SerialuPythonDevice:
         """ Takes the device out of raw mode. """
         self.send(b'\x02')  # Send CTRL-B to get out of raw mode.
 
+class ESPSerialuPythonDevice(SerialuPythonDevice):
+    def __init__(self, port, baudrate = 115200):
+        SerialuPythonDevice.__init__(self, port, baudrate = baudrate)
+        #important turn OS debugging messages off!
+        self.serial.write(b'import esp;esp.osdebug(None)\r\n')
+
 
 class FileManager(QObject):
     """
@@ -236,7 +244,7 @@ class FileManager(QObject):
         Run when the thread containing this object's instance is started so
         it can emit the list of files found on the connected uPython device.
         """
-        self.upydev = SerialuPythonDevice(self.port_path, baudrate=self.baudrate)
+        self.upydev = ESPSerialuPythonDevice(self.port_path, baudrate=self.baudrate)
         self.ls()
 
     def ls(self):
@@ -404,3 +412,4 @@ class ESPMode(MicroPythonMode):
         tips.
         """
         return SHARED_APIS + ADAFRUIT_APIS
+    
