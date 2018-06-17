@@ -5,5 +5,5 @@ from .microbit import MicrobitMode
 from .debugger import DebugMode
 from .pygamezero import PyGameZeroMode
 
-__all__ = ['PythonMode', 'AdafruitMode', 'ESPMode', 'MicrobitMode', 'DebugMode',
-           'PyGameZeroMode', ]
+__all__ = ['PythonMode', 'AdafruitMode', 'ESPMode', 'MicrobitMode',
+           'DebugMode', 'PyGameZeroMode', ]

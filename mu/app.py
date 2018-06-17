@@ -33,8 +33,8 @@ from mu import __version__
 from mu.logic import Editor, LOG_FILE, LOG_DIR, DEBUGGER_PORT, ENCODING
 from mu.interface import Window
 from mu.resources import load_pixmap, load_icon
-from mu.modes import (PythonMode, AdafruitMode, ESPMode, MicrobitMode, DebugMode,
-                      PyGameZeroMode)
+from mu.modes import (PythonMode, AdafruitMode, ESPMode, MicrobitMode,
+                      DebugMode, PyGameZeroMode)
 from mu.debugger.runner import run as run_debugger
 
 
