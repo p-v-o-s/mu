@@ -414,11 +414,11 @@ class ESPMode(MicroPythonMode):
         self.file_manager = None
         self.file_manager_thread = None
         self.fs = None
-        
+
     def add_repl(self):
         device_port = self.find_device()
         if device_port:
-            #hack: initialize to turn off osdebug
+            # HACK: initialize to turn off osdebug
             upydev = ESPSerialuPythonDevice(device_port,
                                             baudrate=self.baudrate)
             upydev.serial.close()
