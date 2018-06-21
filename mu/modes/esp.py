@@ -418,10 +418,13 @@ class ESPMode(MicroPythonMode):
     def add_repl(self):
         device_port = self.find_device()
         if device_port:
-            # HACK: initialize to turn off osdebug
-            upydev = ESPSerialuPythonDevice(device_port,
-                                            baudrate=self.baudrate)
-            upydev.serial.close()
+            try:
+                # HACK: initialize to turn off osdebug
+                upydev = ESPSerialuPythonDevice(device_port,
+                                                baudrate=self.baudrate)
+                upydev.serial.close()
+            except serial.serialutil.SerialException as ex:
+                logger.error(ex) #this is can be from permissions problem on Win10
         super().add_repl()
 
     def api(self):
