@@ -22,7 +22,7 @@ class SerialuPythonDevice:
         time.sleep(0.1)
         self.serial.write(b'\x02')  # Send Ctrl-B to ensure not raw mode
         self.serial.write(b'\x03')  # Send a Control-C
-        self.serial.write(b'\r\n')  # Send a Control-C
+        self.serial.write(b'\r\n')  # Send a newline
 
     def list_files(self):
         """
@@ -59,6 +59,7 @@ class SerialuPythonDevice:
             commands.append('w(' + repr(line) + ')')
             content = content[64:]
         commands.append('fd.close()')
+        logger.info('Writing to upython device file: %s' % remote_filename)
         out, err = self.execute_commands(commands)
         if err:
             raise IOError(err)
@@ -87,6 +88,7 @@ class SerialuPythonDevice:
         if err:
             raise IOError(err)
         # Recombine the bytes while removing "b'" from start and "'" from end.
+        logger.info('Writing to local_path: %s' % local_path)
         with open(local_path, 'wb') as f:
             f.write(out)
         return True
@@ -412,6 +414,15 @@ class ESPMode(MicroPythonMode):
         self.file_manager = None
         self.file_manager_thread = None
         self.fs = None
+        
+    def add_repl(self):
+        device_port = self.find_device()
+        if device_port:
+            #hack: initialize to turn off osdebug
+            upydev = ESPSerialuPythonDevice(device_port,
+                                            baudrate=self.baudrate)
+            upydev.serial.close()
+        super().add_repl()
 
     def api(self):
         """
